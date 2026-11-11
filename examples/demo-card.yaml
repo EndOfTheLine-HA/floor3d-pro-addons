@@ -31,5 +31,5 @@ entities:
     object_id: Demo_Lamp
     light:
       lumens: 800
-      color: "yes"
+      # light.color takes a color value such as "#ffd8a8"; omit it for white.
       shadow: "yes"

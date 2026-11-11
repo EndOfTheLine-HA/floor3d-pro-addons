@@ -19,6 +19,7 @@ import {
 } from "./render-upgrade.js";
 
 const PATCH_FLAG = Symbol.for("floor3dpro.addons.installed");
+export const ADOPT = Symbol.for("floor3dpro.addons.adoptExisting");
 const LEGACY_FLAGS = [
   Symbol.for("floor3dpro.renderUpgrade.installed"),
   Symbol.for("floor3dpro.glbHierarchyFix.installed"),
@@ -96,15 +97,56 @@ export function install(CardClass) {
   );
   const configured = new WeakSet();
   const warnedLate = new WeakSet();
-  const active = (card) => {
+  const warnLate = (card, message) => {
+    if (warnedLate.has(card)) return;
+    warnedLate.add(card);
+    console.warn(`[Floor3D Pro Add-ons] ${message}`);
+  };
+  // Dashboard resources load in parallel, so a card can be configured before this
+  // bundle installs. Adopt it from the configuration the native card already stored.
+  const adopt = (card) => {
     if (configured.has(card)) return true;
-    if (!warnedLate.has(card)) {
-      warnedLate.add(card);
-      console.warn(
-        "[Floor3D Pro Add-ons] Card was configured before this resource loaded. Reload the dashboard to activate its rendering add-ons.",
+    const config = card?._config;
+    if (!config || typeof config !== "object") {
+      warnLate(
+        card,
+        "Card was configured before this resource loaded. Reload the dashboard to activate its rendering add-ons.",
       );
+      return false;
     }
-    return false;
+    let options;
+    try {
+      options = parseOptions(config);
+      hierarchyEnabled(config);
+    } catch {
+      warnLate(
+        card,
+        "Card was configured before this resource loaded and its add-on options are invalid; native rendering kept. Fix the options and reload.",
+      );
+      return false;
+    }
+    configure(card, options);
+    configured.add(card);
+    return true;
+  };
+  const active = (card) => configured.has(card) || adopt(card);
+  // Adopts a card that was already on the page when this bundle installed. Its
+  // model may have loaded before _initobjects was wrapped, so say when the GLB
+  // repair has to wait for a reload.
+  const adoptExisting = (card) => {
+    if (configured.has(card)) return;
+    const modelLoaded = card?._modelready === true;
+    if (!adopt(card)) return;
+    if (modelLoaded && isGlbCard(card))
+      warnLate(
+        card,
+        "Card loaded its model before this resource loaded; rendering add-ons are active, and GLB hierarchy repair applies after the next reload.",
+      );
+    if (modelLoaded && card.isConnected !== false)
+      safely(card, () => {
+        installPixelRatio(card);
+        applyUpgrade(card);
+      });
   };
 
   prototype.setConfig = function (config) {
@@ -183,6 +225,7 @@ export function install(CardClass) {
     return original._cancelScheduledRender.apply(this, args);
   };
   Object.defineProperty(prototype, PATCH_FLAG, { value: VERSION });
+  Object.defineProperty(prototype, ADOPT, { value: adoptExisting });
   // Prevent a later-loaded legacy resource from stacking its own wrappers over ours.
   for (const flag of LEGACY_FLAGS)
     Object.defineProperty(prototype, flag, { value: true });

@@ -1,6 +1,22 @@
 // SPDX-License-Identifier: MIT
-import { install } from "./install.js";
+import { install, ADOPT } from "./install.js";
 import { CARD_TAG, VERSION, SUPPORTED_CARD_VERSION } from "./options.js";
+
+// Finds cards already on the page, including inside shadow roots (HA renders
+// dashboards several shadow roots deep). Runs once, right after installation.
+function existingCards(root = globalThis.document) {
+  const found = [];
+  if (!root?.querySelectorAll) return found;
+  const queue = [root];
+  while (queue.length) {
+    const node = queue.shift();
+    for (const element of node.querySelectorAll("*")) {
+      if (element.localName === CARD_TAG) found.push(element);
+      if (element.shadowRoot) queue.push(element.shadowRoot);
+    }
+  }
+  return found;
+}
 
 const status = {
   version: VERSION,
@@ -13,7 +29,11 @@ globalThis.floor3dProAddons = status;
 if (typeof customElements !== "undefined") {
   const activate = () => {
     try {
-      Object.assign(status, install(customElements.get(CARD_TAG)));
+      const CardClass = customElements.get(CARD_TAG);
+      Object.assign(status, install(CardClass));
+      const adopt = CardClass?.prototype?.[ADOPT];
+      if (status.status === "installed" && typeof adopt === "function")
+        for (const card of existingCards()) adopt.call(null, card);
     } catch {
       status.status = "failed";
       console.warn(

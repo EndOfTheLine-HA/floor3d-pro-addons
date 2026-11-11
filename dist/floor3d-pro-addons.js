@@ -750,6 +750,7 @@
 
   // src/install.js
   var PATCH_FLAG = /* @__PURE__ */ Symbol.for("floor3dpro.addons.installed");
+  var ADOPT = /* @__PURE__ */ Symbol.for("floor3dpro.addons.adoptExisting");
   var LEGACY_FLAGS = [
     /* @__PURE__ */ Symbol.for("floor3dpro.renderUpgrade.installed"),
     /* @__PURE__ */ Symbol.for("floor3dpro.glbHierarchyFix.installed")
@@ -822,15 +823,51 @@
     );
     const configured2 = /* @__PURE__ */ new WeakSet();
     const warnedLate = /* @__PURE__ */ new WeakSet();
-    const active = (card) => {
+    const warnLate = (card, message) => {
+      if (warnedLate.has(card)) return;
+      warnedLate.add(card);
+      console.warn(`[Floor3D Pro Add-ons] ${message}`);
+    };
+    const adopt = (card) => {
       if (configured2.has(card)) return true;
-      if (!warnedLate.has(card)) {
-        warnedLate.add(card);
-        console.warn(
-          "[Floor3D Pro Add-ons] Card was configured before this resource loaded. Reload the dashboard to activate its rendering add-ons."
+      const config = card?._config;
+      if (!config || typeof config !== "object") {
+        warnLate(
+          card,
+          "Card was configured before this resource loaded. Reload the dashboard to activate its rendering add-ons."
         );
+        return false;
       }
-      return false;
+      let options;
+      try {
+        options = parseOptions(config);
+        hierarchyEnabled(config);
+      } catch {
+        warnLate(
+          card,
+          "Card was configured before this resource loaded and its add-on options are invalid; native rendering kept. Fix the options and reload."
+        );
+        return false;
+      }
+      configure(card, options);
+      configured2.add(card);
+      return true;
+    };
+    const active = (card) => configured2.has(card) || adopt(card);
+    const adoptExisting = (card) => {
+      if (configured2.has(card)) return;
+      const modelLoaded = card?._modelready === true;
+      if (!adopt(card)) return;
+      if (modelLoaded && isGlbCard(card))
+        warnLate(
+          card,
+          "Card loaded its model before this resource loaded; rendering add-ons are active, and GLB hierarchy repair applies after the next reload."
+        );
+      if (modelLoaded && card.isConnected !== false)
+        safely(card, () => {
+          installPixelRatio(card);
+          applyUpgrade(card);
+        });
     };
     prototype.setConfig = function(config) {
       const options = parseOptions(config);
@@ -899,12 +936,26 @@
       return original._cancelScheduledRender.apply(this, args);
     };
     Object.defineProperty(prototype, PATCH_FLAG, { value: VERSION });
+    Object.defineProperty(prototype, ADOPT, { value: adoptExisting });
     for (const flag of LEGACY_FLAGS)
       Object.defineProperty(prototype, flag, { value: true });
     return { status: "installed", version: VERSION };
   }
 
   // src/index.js
+  function existingCards(root = globalThis.document) {
+    const found = [];
+    if (!root?.querySelectorAll) return found;
+    const queue = [root];
+    while (queue.length) {
+      const node = queue.shift();
+      for (const element of node.querySelectorAll("*")) {
+        if (element.localName === CARD_TAG) found.push(element);
+        if (element.shadowRoot) queue.push(element.shadowRoot);
+      }
+    }
+    return found;
+  }
   var status = {
     version: VERSION,
     supportedCardVersion: SUPPORTED_CARD_VERSION,
@@ -914,7 +965,11 @@
   if (typeof customElements !== "undefined") {
     const activate = () => {
       try {
-        Object.assign(status, install(customElements.get(CARD_TAG)));
+        const CardClass = customElements.get(CARD_TAG);
+        Object.assign(status, install(CardClass));
+        const adopt = CardClass?.prototype?.[ADOPT];
+        if (status.status === "installed" && typeof adopt === "function")
+          for (const card of existingCards()) adopt.call(null, card);
       } catch {
         status.status = "failed";
         console.warn(
