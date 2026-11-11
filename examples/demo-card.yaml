@@ -1,0 +1,35 @@
+type: custom:floor3dpro-card
+name: Add-ons synthetic test
+path: /local/floor3d-demo/
+objfile: demo.glb
+sky: "no"
+shadow: "yes"
+click: "no"
+header: "yes"
+overlay: "no"
+camera_position:
+  x: 290
+  y: 240
+  z: 350
+camera_target:
+  x: 0
+  y: 30
+  z: 0
+render_upgrade:
+  exposure: 1.6
+  ambient: 0.1
+  torch: 0.3
+  light_pool:
+    spots: 2
+    points: 2
+    shadows: 1
+    point_shadows: false
+entities:
+  # Replace with an entity you deliberately choose. No entity is created by this example.
+  - entity: light.demo_lamp
+    type3d: light
+    object_id: Demo_Lamp
+    light:
+      lumens: 800
+      color: "yes"
+      shadow: "yes"

@@ -1,0 +1,37 @@
+{
+  "name": "floor3d-pro-addons",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Opt-in rendering improvements and GLB compatibility fixes for Floor3D Pro",
+  "license": "MIT",
+  "author": "EndOfTheLine-HA",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EndOfTheLine-HA/floor3d-pro-addons.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check:dist": "node scripts/build.mjs --check",
+    "check:package": "node scripts/check-package.mjs",
+    "demo:generate": "node scripts/generate-demo.mjs",
+    "test:browser": "node scripts/browser-smoke.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test tests/*.test.js",
+    "test:coverage": "node --experimental-test-coverage --test tests/*.test.js",
+    "verify": "npm run lint && npm run format:check && npm test && npm run check:dist && npm run check:package"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "esbuild": "0.28.2",
+    "eslint": "10.13.0",
+    "prettier": "3.9.10",
+    "three": "0.130.1"
+  }
+}

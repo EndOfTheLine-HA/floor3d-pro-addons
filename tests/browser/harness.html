@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" />
+  <title>Floor3D Pro Add-ons synthetic smoke test</title>
+  <style>
+    body {
+      margin: 0;
+      background: #101b25;
+      color: #e0edf3;
+      font:
+        16px system-ui,
+        sans-serif;
+    }
+    main {
+      padding: 28px;
+      width: 850px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 25px;
+    }
+    p {
+      margin: 0 0 20px;
+      color: #99b7c7;
+    }
+    floor3dpro-card {
+      display: block;
+    }
+    canvas {
+      border-radius: 12px;
+    }
+    footer {
+      padding-top: 12px;
+      color: #99b7c7;
+      font-size: 13px;
+    }
+  </style>
+  <main>
+    <h1>Floor3D Pro Add-ons</h1>
+    <p>
+      Synthetic lamp and floor · color correction · fixed light pool · GLB
+      bindings
+    </p>
+    <floor3dpro-card></floor3dpro-card>
+    <footer>
+      Development harness using Three.js r130. Not a screenshot of Home
+      Assistant or a real home.
+    </footer>
+  </main>
+  <script type="importmap">
+    { "imports": { "three": "/node_modules/three/build/three.module.js" } }
+  </script>
+  <script type="module" src="/tests/browser/harness.js"></script>
+</html>

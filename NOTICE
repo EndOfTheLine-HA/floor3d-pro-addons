@@ -1,0 +1,38 @@
+Floor3D Pro Add-ons
+
+This independent companion is based on the owner's existing rendering/light-pool
+and GLB compatibility scripts. It does not redistribute the Floor3D Pro card or
+the owner's model, dashboard, household data or device configuration.
+
+Upstream lineage and acknowledgements:
+- Floor3D Pro Card by Levent ERDEM: https://github.com/levonisyas/floor3dpro-card
+- Original floor3d-card by Andrea Di Zanni: https://github.com/adizanni/floor3d-card
+- Three.js: https://github.com/mrdoob/three.js
+
+The native card and its bundled Three.js are installed separately. Three.js is
+a development/test dependency only and is not included in the add-on bundle.
+
+For completeness, the MIT notice from the separately installed Floor3D Pro
+project is retained below. This is attribution, not a claim of endorsement.
+
+MIT License
+
+Copyright (c) 2026 Levent ERDEM
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
