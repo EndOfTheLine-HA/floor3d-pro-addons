@@ -52,8 +52,10 @@ The add-on is not in the default community catalog, so it is added by link.
    did not register one.
 4. Remove any separately registered legacy render-upgrade and GLB-hierarchy-fix
    resources. Do not load them alongside this bundle.
-5. Fully reload the browser/dashboard. If the console says the card was configured
-   before the add-on loaded, check resource loading/order and reload again.
+5. Fully reload the browser/dashboard. Dashboard resources load in parallel, so the card
+   may be set up before the add-on; the add-on then adopts it from its existing
+   configuration. If the card had already loaded its model, the console says GLB
+   hierarchy repair applies after the next reload; rendering add-ons are active at once.
 6. Start with a test dashboard and enable `render_upgrade` on one card.
 
 Before Home Assistant 2026.11, add the repository to HACS as a custom repository of

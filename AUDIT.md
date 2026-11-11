@@ -22,7 +22,8 @@ See NOTICE for upstream attribution and its MIT notice.
 
 - Node regression tests use real Three.js objects and synthetic cards/models.
 - Compatibility tests cover missing methods, idempotent loading, legacy conflicts,
-  late installation, and newer color-management APIs.
+  late installation (adopting cards configured before the bundle loaded, with and
+  without a loaded model, and invalid late options), and newer color-management APIs.
 - Renderer tests cover opt-in/bypass, environment fallback, preserving an existing
   environment, configuration changes, multiple cards, pool overflow, hidden levels,
   cleanup, reconnect, culling, throttling and pixel-ratio restoration.
